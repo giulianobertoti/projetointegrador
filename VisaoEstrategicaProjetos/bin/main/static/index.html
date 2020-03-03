@@ -1,0 +1,82 @@
+<!-- Created by Giuliano Bertoti - Software Engineering class - 2020-1 -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PI - Software Engineering</title>
+	
+    
+	<script src="js/jquery.js"></script>
+	
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	
+
+	<link href="css/bootstrap.min.css" rel=stylesheet>
+	
+	
+	<script>
+		$(document).ready(function(){
+			
+			google.charts.load('current', {'packages':['gantt']});
+		    google.charts.setOnLoadCallback(drawChart);
+		
+		    function toMilliseconds(minutes) {
+		      return minutes * 60 * 1000;
+		    }
+		
+		    function drawChart() {
+		
+				// REST request
+		      $.getJSON("/project/latecoere", function(data) {
+		      
+			      
+			      var otherData = new google.visualization.DataTable();
+			      otherData.addColumn('string', 'Task ID');
+			      otherData.addColumn('string', 'Task Name');
+			      otherData.addColumn('string', 'Resource');
+			      otherData.addColumn('date', 'Start');
+			      otherData.addColumn('date', 'End');
+			      otherData.addColumn('number', 'Duration');
+			      otherData.addColumn('number', 'Percent Complete');
+			      otherData.addColumn('string', 'Dependencies');
+			
+			      
+			      
+			      
+			      otherData.addRows([
+			        
+			        [data.tasks[0].id, data.tasks[0].name, data.tasks[0].resource, null, null, toMilliseconds(data.tasks[0].time), data.tasks[0].percentDone, null],
+			        [data.tasks[1].id, data.tasks[1].name, data.tasks[1].resource, null, null, toMilliseconds(data.tasks[1].time), data.tasks[1].percentDone, data.tasks[1].dependency],
+			        
+			      ]);
+			
+			      var options = {
+			        height: 275,
+			        gantt: {
+			          defaultStartDateMillis: new Date(2015, 3, 28)
+			        }
+			      };
+			
+			      
+			      var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+			
+			      chart.draw(otherData, options);
+				});
+			}
+		});
+
+	</script>
+
+   
+  </head>
+
+
+  <body>
+		
+
+  		<div id="chart_div"></div>
+
+		
+  </body>
+  
+</html>
