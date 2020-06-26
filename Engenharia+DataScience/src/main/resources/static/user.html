@@ -1,0 +1,128 @@
+<html>
+<head></head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"></link>
+    <script lang="js">
+        
+        async function run(){
+            const trainingUrl = 'wdbc-train.csv';
+            
+            
+            const trainingData = tf.data.csv(trainingUrl, {
+                
+                
+                columnConfigs: {
+                    diagnosis: {
+                        isLabel: true
+                    }
+                }
+                
+            });
+            
+            
+            const convertedTrainingData = trainingData.map(({xs, ys}) => {
+                      
+                      return{ xs: Object.values(xs), ys: Object.values(ys)};
+                  }).batch(10);
+                  
+            const testingUrl = 'wdbc-test.csv';
+            
+            
+            const testingData = tf.data.csv(testingUrl, {
+                
+               
+                columnConfigs: {
+                    diagnosis: {
+                        isLabel: true
+                    }
+                }
+                
+            });
+            
+            
+            const convertedTestingData = testingData.map(({xs, ys}) => {
+                      
+                      return{ xs: Object.values(xs), ys: Object.values(ys)};
+                  }).batch(10);
+                  
+
+            
+            const numOfFeatures = (await trainingData.columnNames()).length - 1;
+            
+                
+            
+            const model = tf.sequential();
+            
+            
+            model.add(tf.layers.dense({inputShape: [numOfFeatures], activation: "relu", units: 32}))
+            model.add(tf.layers.dense({activation: "sigmoid", units: 1}));
+            
+            
+             
+            model.compile({loss: "binaryCrossentropy", optimizer: "rmsprop", metrics: ['accuracy']});// YOUR CODE HERE);
+            
+            
+            await model.fitDataset(convertedTrainingData, 
+                             {epochs:2,
+                              validationData: convertedTestingData,
+                              callbacks:{
+                                  onEpochEnd: async(epoch, logs) =>{
+                                      console.log("Epoch: " + epoch + " Loss: " + logs.loss + " Accuracy: " + logs.acc);
+                                  }
+                              }});
+            await model.save('downloads://my_model');
+            
+            //const testVal = tf.tensor2d([-0.2017560352, 0.3290785951, -0.1308675428, -0.2714550596, 1.029197687, 0.8641183587, 0.7336389793, 0.8566968842, 1.120327751, 1.553584804, -0.04197565532, -0.5158820604, 0.1315408672, -0.13875636, -0.5595397256, -0.137973541, 0.09807079797, 0.2875119649, -0.4244614077, 0.1130514903, 0.03150414385, 0.6762888632, 0.185286211, -0.0628080803, 1.10353068, 0.8744426707, 1.219090897, 1.389329095, 1.082032838, 1.540296642], [1, 30]);
+            
+            const testVal = tf.tensor2d([0.3815675768, -1.74824194, 0.4398250588, 0.2322171451, 2.124655378, 1.034636699, 1.488953499, 1.582412838, 0.5722379129, 1.177740412, 0.06469273885, -1.018869576, -0.009946784933, 0.09132907804, -0.5669326934, -0.1059561913, 0.3719545727, 0.2637457429, -0.318201638, 0.1755797923, 0.5186922936, -1.394626457, 0.5311131818, 0.3769692998, 0.9132726375, 0.6959424879, 1.582147395, 1.046028789, 0.4955949451, 0.9839401465], [1, 30]);
+            
+            const prediction = model.predict(testVal);
+            
+            prediction.print();
+            
+            const value = prediction.dataSync(); //pegar os valores do tensor
+            
+            if(value[0]>0.5){
+                alert("Cancer");
+            } else {
+                alert("Não Câncer");
+            }
+        }
+        run();
+    </script>
+<body>
+    
+    <div class="form-group col-md-2">
+        <label>meanradius</label>
+        <input type="number">
+    </div>
+    
+     <div class="form-group col-md-2">
+        <label>meantexture</label>
+        <input type="number">
+    </div>
+    
+     <div class="form-group col-md-2">
+        <label>meanperimeter</label>
+        <input type="number">
+    </div>
+    
+     <div class="form-group col-md-2">
+        <label>meanarea</label>
+        <input type="number">
+    </div>
+    
+     <div class="form-group col-md-2">
+        <label>meansmoothness</label>
+        <input type="number">
+    </div>
+    
+     <div class="form-group col-md-2">
+        <label>meancompactness</label>
+        <input type="number">
+    </div>
+    
+    
+</body>
+</html>
